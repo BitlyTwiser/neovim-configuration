@@ -1,6 +1,7 @@
 require('bitlytwiser.plugins')
 require('bitlytwiser.nvim-tree')
 require('bitlytwiser.toggleterm')
+require('bitlytwiser.treesitter')
 require('bitlytwiser.mason')
 
 vim.cmd([[
