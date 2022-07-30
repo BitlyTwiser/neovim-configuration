@@ -1,5 +1,5 @@
 # neovim-configuration
-Neovim files
+Neovim configuration files
 
 ### One must have Neovim installed.
 
