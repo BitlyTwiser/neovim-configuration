@@ -22,4 +22,7 @@ use 'wbthomason/packer.nvim' -- Package manager
 use 'neovim/nvim-lspconfig' -- Configurations for Nvim LSP
 use 'mfussenegger/nvim-dap'
 use { "williamboman/mason.nvim" }
+use {"akinsho/toggleterm.nvim", tag = 'v2.*', config = function()
+  require("toggleterm").setup()
+end}
 end)

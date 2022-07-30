@@ -1,5 +1,6 @@
 require('bitlytwiser.plugins')
 require('bitlytwiser.nvim-tree')
+require('bitlytwiser.toggleterm')
 require('bitlytwiser.mason')
 
 vim.cmd([[
@@ -13,9 +14,9 @@ vim.cmd([[
  set smartindent 
  colorscheme terafox
  au TextYankPost * silent! lua vim.highlight.on_yank()
- let mapleader = " "                                  
 ]])                
 
+vim.g.mapleader = " "
 vim.api.nvim_set_keymap("n", "<leader>bk", ":Vex<CR>", { noremap = true })
 vim.api.nvim_set_keymap("n", "<leader><CR>", ":luafile ~/.config/nvim/init.lua<CR>", { noremap = true })
 vim.api.nvim_set_keymap("n", "<leader>ff", "<cmd>lua require('telescope.builtin').find_files()<CR>", { noremap = true })
