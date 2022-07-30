@@ -3,6 +3,8 @@ require('bitlytwiser.nvim-tree')
 require('bitlytwiser.toggleterm')
 require('bitlytwiser.treesitter')
 require('bitlytwiser.mason')
+require('bitlytwiser.autopairs')
+require('bitlytwiser.cmp')
 
 vim.cmd([[
  set guicursor=
