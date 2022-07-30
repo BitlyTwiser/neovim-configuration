@@ -38,4 +38,6 @@ use {
 use {
     "williamboman/mason-lspconfig.nvim",
 }
+ use {'tzachar/cmp-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-cmp'}
+use {'onsails/lspkind.nvim'}
 end)
