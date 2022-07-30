@@ -18,6 +18,8 @@ use {
   },
   tag = 'nightly' -- optional, updated every week. (see issue #1193)
 }
-  use 'wbthomason/packer.nvim' -- Package manager
-  use 'neovim/nvim-lspconfig' -- Configurations for Nvim LSP
+use 'wbthomason/packer.nvim' -- Package manager
+use 'neovim/nvim-lspconfig' -- Configurations for Nvim LSP
+use 'mfussenegger/nvim-dap'
+use { "williamboman/mason.nvim" }
 end)

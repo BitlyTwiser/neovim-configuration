@@ -1,6 +1,6 @@
 require('bitlytwiser.plugins')
 require('bitlytwiser.nvim-tree')
-
+require('bitlytwiser.mason')
 
 vim.cmd([[
  set guicursor=
