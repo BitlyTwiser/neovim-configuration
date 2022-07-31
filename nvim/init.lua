@@ -7,6 +7,7 @@ require('bitlytwiser.autopairs')
 require('bitlytwiser.cmp')
 require('bitlytwiser.mason-lsp')
 require('bitlytwiser.tabnine')
+require('bitlytwiser.debugger')
 
 vim.cmd([[
  set guicursor=
@@ -33,3 +34,4 @@ vim.api.nvim_set_keymap("n", "<leader>tr", ":NvimTreeToggle<CR>", { noremap = tr
 vim.api.nvim_set_keymap("n", "<leader>tf", ":NvimTreeFindFile<CR>", { noremap = true })
 vim.api.nvim_set_keymap("n", "<leader>ct", ":NvimTreeClose<CR>", { noremap = true })
 vim.api.nvim_set_keymap("n", "<leader>rt", ":NvimTreeRefresh<CR>", { noremap = true })
+vim.api.nvim_set_keymap("n", "<leader>td",":lua require('dap-go').debug_test()<CR>", { noremap = true })

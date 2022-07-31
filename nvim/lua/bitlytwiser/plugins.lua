@@ -38,7 +38,11 @@ use {
 use {
     "williamboman/mason-lspconfig.nvim",
 }
- use {'tzachar/cmp-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-cmp'}
+use {'tzachar/cmp-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-cmp'}
 use {'onsails/lspkind.nvim'}
 use {'L3MON4D3/LuaSnip'}
+use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
+use {'theHamsta/nvim-dap-virtual-text'}
+use 'leoluz/nvim-dap-go'
 end)
+
