@@ -13,5 +13,5 @@ git clone --depth 1 https://github.com/wbthomason/packer.nvim\
  - Launch ```nvim``` then run ```:PackerInstall```
 ### Fonts:
 - You will also need several nerd fonts:
-https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/UbuntuMono.zip
-https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Terminus.zip
+- https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/UbuntuMono.zip
+- https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Terminus.zip
