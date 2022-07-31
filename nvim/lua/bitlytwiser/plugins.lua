@@ -40,4 +40,5 @@ use {
 }
  use {'tzachar/cmp-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-cmp'}
 use {'onsails/lspkind.nvim'}
+use {'L3MON4D3/LuaSnip'}
 end)

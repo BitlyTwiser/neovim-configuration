@@ -7,7 +7,6 @@ require('bitlytwiser.autopairs')
 require('bitlytwiser.cmp')
 require('bitlytwiser.mason-lsp')
 require('bitlytwiser.tabnine')
-require('bitlytwiser.lspkind')
 
 vim.cmd([[
  set guicursor=
