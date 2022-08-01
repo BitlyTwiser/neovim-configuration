@@ -11,6 +11,10 @@ git clone --depth 1 https://github.com/wbthomason/packer.nvim\
  ```
  - After executing the script, one can save the configuration to ```~/.config/nvim```
  - Launch ```nvim``` then run ```:PackerInstall```
+ 
+ ### Dependencies:
+ - https://github.com/BurntSushi/ripgrep (For Telescope Live Grep)
+ 
 ### Fonts:
 - You will also need several nerd fonts:
 - https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/UbuntuMono.zip
