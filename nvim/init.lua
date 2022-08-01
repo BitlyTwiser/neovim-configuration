@@ -8,7 +8,9 @@ require('bitlytwiser.cmp')
 require('bitlytwiser.mason-lsp')
 require('bitlytwiser.tabnine')
 require('bitlytwiser.debugger')
-
+require('bitlytwiser.trouble')
+require('bitlytwiser.lspcolors')
+require('bitlytwiser.lsp')
 vim.cmd([[
  set guicursor=
  set scrolloff=8
@@ -35,3 +37,21 @@ vim.api.nvim_set_keymap("n", "<leader>tf", ":NvimTreeFindFile<CR>", { noremap = 
 vim.api.nvim_set_keymap("n", "<leader>ct", ":NvimTreeClose<CR>", { noremap = true })
 vim.api.nvim_set_keymap("n", "<leader>rt", ":NvimTreeRefresh<CR>", { noremap = true })
 vim.api.nvim_set_keymap("n", "<leader>td",":lua require('dap-go').debug_test()<CR>", { noremap = true })
+vim.api.nvim_set_keymap("n", "<leader>xx", "<cmd>Trouble<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xw", "<cmd>Trouble workspace_diagnostics<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xd", "<cmd>Trouble document_diagnostics<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xl", "<cmd>Trouble loclist<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xq", "<cmd>Trouble quickfix<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "gR", "<cmd>Trouble lsp_references<cr>",
+  {silent = true, noremap = true}
+)

@@ -44,5 +44,9 @@ use {'L3MON4D3/LuaSnip'}
 use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
 use {'theHamsta/nvim-dap-virtual-text'}
 use 'leoluz/nvim-dap-go'
+use {
+  "folke/trouble.nvim",
+  requires = "kyazdani42/nvim-web-devicons",
+}
+use 'folke/lsp-colors.nvim'
 end)
-
