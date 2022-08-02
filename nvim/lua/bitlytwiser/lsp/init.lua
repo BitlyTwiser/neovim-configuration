@@ -7,3 +7,5 @@ require('bitlytwiser.lsp.ruby')
 require('bitlytwiser.lsp.eslint')
 require('bitlytwiser.lsp.solidity')
 require('bitlytwiser.lsp.solc')
+require('bitlytwiser.lsp.yaml')
+

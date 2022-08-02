@@ -1,4 +1,5 @@
 require('bitlytwiser.plugins')
+require('bitlytwiser.bufferline')
 require('bitlytwiser.nvim-tree')
 require('bitlytwiser.toggleterm')
 require('bitlytwiser.treesitter')
@@ -58,3 +59,7 @@ vim.api.nvim_set_keymap("n", "gR", "<cmd>Trouble lsp_references<cr>",
 )
 vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, { noremap=true, silent=true, buffer=bufnr })
 vim.keymap.set('n', 'gd', vim.lsp.buf.definition, { noremap=true, silent=true, buffer=bufnr })
+vim.api.nvim_set_keymap("n", "[b", ":BufferLineCycleNext<CR>", { noremap = true })
+vim.api.nvim_set_keymap("n", "]b", ":BufferLineCyclePrev<CR>", { noremap = true })
+vim.api.nvim_set_keymap("n", "<leader>bln", ":BufferLineCycleNext<CR>", { noremap = true })
+vim.api.nvim_set_keymap("n", "<leader>blp", ":BufferLineCyclePrev<CR>", { noremap = true })
