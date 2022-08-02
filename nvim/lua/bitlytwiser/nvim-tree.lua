@@ -54,9 +54,6 @@ nvim_tree.setup {
       error = "",
     },
   },
-  filters = {
-    dotfiles = true;
-  },
   view = {
     width = 30,
     height = 30,

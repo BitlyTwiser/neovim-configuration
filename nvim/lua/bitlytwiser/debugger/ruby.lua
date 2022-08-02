@@ -3,7 +3,7 @@ dap.adapters.ruby = function(callback, config)
   callback {
     type = "server",
     host = "127.0.0.1",
-    port = "${port}",
+    port = "1234",
     executable = {
       command = "bundle",
       args = { "exec", "rdbg", "-n", "--open", "--port", "${port}",
