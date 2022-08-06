@@ -1,4 +1,5 @@
 require('bitlytwiser.plugins')
+require('bitlytwiser.telescope')
 require('bitlytwiser.bufferline')
 require('bitlytwiser.nvim-tree')
 require('bitlytwiser.toggleterm')
@@ -12,6 +13,8 @@ require('bitlytwiser.debugger')
 require('bitlytwiser.trouble')
 require('bitlytwiser.lspcolors')
 require('bitlytwiser.lsp')
+require('bitlytwiser.functions')
+
 vim.cmd([[
  set guicursor=
  set scrolloff=8

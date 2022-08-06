@@ -43,6 +43,7 @@ use {'onsails/lspkind.nvim'}
 use {'L3MON4D3/LuaSnip'}
 use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
 use {'theHamsta/nvim-dap-virtual-text'}
+use 'sebdah/vim-delve'
 use 'leoluz/nvim-dap-go'
 use {
   "folke/trouble.nvim",
