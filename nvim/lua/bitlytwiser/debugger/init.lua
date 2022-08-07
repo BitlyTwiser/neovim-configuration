@@ -5,27 +5,17 @@ local daptext = require("nvim-dap-virtual-text")
 local remap = require("bitlytwiser.keymap")
 local nnoremap = remap.nnoremap
 
-daptext.setup()
-dapui.setup({
-    layouts = {
-        {
-            elements = {
-                "console",
-            },
-            size = 7,
-            position = "bottom",
-        },
-        {
-            elements = {
-                -- Elements can be strings or table with id and size keys.
-                { id = "scopes", size = 0.25 },
-                "watches",
-            },
-            size = 40,
-            position = "left",
-        }
-    },
+daptext.setup({
+  enable = true,
+  enable_commands = true
 })
+
+dapui.setup()
+
+vim.g.mapleader = " "
+vim.api.nvim_set_keymap("n", "<Leader>drc", ":lua require('dap').repl.close()<CR>", { noremap=true})
+vim.api.nvim_set_keymap("n", "<Leader>dro", ":lua require('dap').repl.open()<CR>", { noremap=true})
+vim.api.nvim_set_keymap('n', '<leader>oui', ":lua require('dapui').open()<CR>", { noremap=true })
 
 dap.listeners.after.event_initialized["dapui_config"] = function()
     dapui.open(1)

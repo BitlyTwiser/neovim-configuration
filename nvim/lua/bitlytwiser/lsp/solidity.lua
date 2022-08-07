@@ -1,1 +1,1 @@
-require'lspconfig'.solidity_ls.setup{}
+--require'lspconfig'.solidity_ls.setup{}
