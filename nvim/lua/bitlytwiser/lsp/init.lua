@@ -8,4 +8,5 @@ require('bitlytwiser.lsp.eslint')
 require('bitlytwiser.lsp.solidity')
 require('bitlytwiser.lsp.solc')
 require('bitlytwiser.lsp.yaml')
+require('bitlytwiser.lsp.rust')
 
