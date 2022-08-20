@@ -27,7 +27,7 @@ vim.cmd([[
  set clipboard=unnamed
  colorscheme terafox
  au TextYankPost * silent! lua vim.highlight.on_yank()
-]])                
+]])
 
 vim.g.mapleader = " "
 vim.api.nvim_set_keymap("n", "<leader>bk", ":Vex<CR>", { noremap = true })
