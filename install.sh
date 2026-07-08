@@ -15,8 +15,9 @@
 #   Python 3       pyright / debugpy (Python debugging)
 #   lazygit        the <leader>gg terminal binding (optional)
 #
-# Supported package managers: apt, dnf, pacman, brew. Anything else prints
-# manual-install hints and keeps going.
+# Go, Rust, and lazygit install into your home directory - no root required.
+# Only base system packages (ripgrep, compiler, ...) need a package manager,
+# and those are skipped when already present. Supports apt, dnf, pacman, brew.
 
 set -euo pipefail
 
@@ -24,26 +25,33 @@ info() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m[!]\033[0m %s\n' "$*"; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
-# Detect package manager.
+LOCAL_BIN="$HOME/.local/bin"
+mkdir -p "$LOCAL_BIN"
+
+# Detect package manager (only used for base packages).
 PM=""
 if have brew; then PM=brew
 elif have apt-get; then PM=apt
 elif have dnf; then PM=dnf
 elif have pacman; then PM=pacman
 fi
-[ -n "$PM" ] && info "Using package manager: $PM" || warn "No supported package manager detected."
 
-# Use sudo for system installs when not already root (brew never needs it).
+# Can we install system packages without an interactive password prompt?
+CAN_SUDO=false
 SUDO=""
-if [ "$PM" != "brew" ] && [ "$(id -u)" -ne 0 ] && have sudo; then SUDO="sudo"; fi
+if [ "$PM" = brew ] || [ "$(id -u)" -eq 0 ]; then
+  CAN_SUDO=true
+elif have sudo && sudo -n true 2>/dev/null; then
+  CAN_SUDO=true
+  SUDO="sudo"
+fi
 
 pkg_install() {
   case "$PM" in
-    apt)    $SUDO apt-get install -y "$@" ;;
+    apt)    $SUDO apt-get update -y && $SUDO apt-get install -y "$@" ;;
     dnf)    $SUDO dnf install -y "$@" ;;
     pacman) $SUDO pacman -S --needed --noconfirm "$@" ;;
     brew)   brew install "$@" ;;
-    *)      warn "Please install manually: $*" ;;
   esac
 }
 
@@ -56,36 +64,51 @@ arch_tag() {
 }
 
 # ---------------------------------------------------------------------------
-# 1. Base tools.
+# 1. Base tools (only touch the package manager if something is missing).
 # ---------------------------------------------------------------------------
-info "Installing base tools (ripgrep, compiler, git, curl, unzip, python3)"
-[ "$PM" = apt ] && $SUDO apt-get update -y
-case "$PM" in
-  apt)    pkg_install ripgrep build-essential git curl unzip python3 python3-venv python3-pip ;;
-  dnf)    pkg_install ripgrep gcc gcc-c++ make git curl unzip python3 python3-pip ;;
-  pacman) pkg_install ripgrep base-devel git curl unzip python python-pip ;;
-  brew)   pkg_install ripgrep git curl python ;;
-  *)      warn "Install ripgrep, a C compiler, git, curl, unzip, and python3 by hand." ;;
-esac
+missing=()
+have rg || missing+=(ripgrep)
+{ have gcc || have cc; } || missing+=(compiler)
+have git || missing+=(git)
+have curl || missing+=(curl)
+have python3 || missing+=(python3)
+
+if [ ${#missing[@]} -eq 0 ]; then
+  info "Base tools already present (ripgrep, compiler, git, curl, python3)."
+elif [ -z "$PM" ]; then
+  warn "Missing base tools: ${missing[*]} - install them with your package manager."
+elif [ "$CAN_SUDO" = true ]; then
+  info "Installing base tools: ${missing[*]}"
+  case "$PM" in
+    apt)    pkg_install ripgrep build-essential git curl unzip python3 python3-venv python3-pip ;;
+    dnf)    pkg_install ripgrep gcc gcc-c++ make git curl unzip python3 python3-pip ;;
+    pacman) pkg_install ripgrep base-devel git curl unzip python python-pip ;;
+    brew)   pkg_install ripgrep git curl python ;;
+  esac
+else
+  warn "Missing base tools: ${missing[*]}"
+  warn "These need root. Run this once in a terminal, then re-run ./install.sh:"
+  case "$PM" in
+    apt)    echo "    sudo apt-get install -y ripgrep build-essential git curl unzip python3 python3-venv python3-pip" ;;
+    dnf)    echo "    sudo dnf install -y ripgrep gcc gcc-c++ make git curl unzip python3 python3-pip" ;;
+    pacman) echo "    sudo pacman -S --needed ripgrep base-devel git curl unzip python python-pip" ;;
+  esac
+fi
 
 # ---------------------------------------------------------------------------
 # 2. Node.js (JS-family language servers).
 # ---------------------------------------------------------------------------
 if have node; then
   info "Node.js present: $(node --version)"
+elif [ "$PM" = brew ]; then
+  info "Installing Node.js"; pkg_install node
 else
-  info "Installing Node.js (LTS)"
-  case "$PM" in
-    brew)   pkg_install node ;;
-    apt)    curl -fsSL https://deb.nodesource.com/setup_lts.x | $SUDO -E bash - && pkg_install nodejs ;;
-    dnf)    curl -fsSL https://rpm.nodesource.com/setup_lts.x | $SUDO bash - && pkg_install nodejs ;;
-    pacman) pkg_install nodejs npm ;;
-    *)      warn "Install Node.js from https://nodejs.org and re-run." ;;
-  esac
+  warn "Node.js not found. Install the LTS from https://nodejs.org (or your"
+  warn "package manager) - it's needed for the TS/Vue/JSON/YAML/ESLint servers."
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Go (gopls + delve).
+# 3. Go -> $HOME/.local/go (no root).
 # ---------------------------------------------------------------------------
 if have go; then
   info "Go present: $(go version)"
@@ -94,60 +117,73 @@ elif [ "$PM" = brew ]; then
 else
   GO_VERSION="1.23.4"
   TARBALL="go${GO_VERSION}.linux-$(arch_tag).tar.gz"
-  info "Installing Go ${GO_VERSION} to /usr/local/go"
+  info "Installing Go ${GO_VERSION} to \$HOME/.local/go"
   curl -fsSLo "/tmp/${TARBALL}" "https://go.dev/dl/${TARBALL}"
-  $SUDO rm -rf /usr/local/go && $SUDO tar -C /usr/local -xzf "/tmp/${TARBALL}"
-  if ! echo "$PATH" | grep -q "/usr/local/go/bin"; then
-    warn "Add Go to your PATH (e.g. in ~/.zshrc): export PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin"
-  fi
+  rm -rf "$HOME/.local/go"
+  tar -C "$HOME/.local" -xzf "/tmp/${TARBALL}"
+  rm -f "/tmp/${TARBALL}"
+  ln -sf "$HOME/.local/go/bin/go" "$LOCAL_BIN/go"
+  ln -sf "$HOME/.local/go/bin/gofmt" "$LOCAL_BIN/gofmt"
 fi
 
 # ---------------------------------------------------------------------------
-# 4. Rust (rust_analyzer / cargo).
+# 4. Rust via rustup (already user-level, no root).
 # ---------------------------------------------------------------------------
 if have cargo; then
   info "Rust present: $(rustc --version 2>/dev/null || echo cargo)"
 elif [ "$PM" = brew ]; then
-  info "Installing Rust"; pkg_install rustup-init && rustup-init -y
+  info "Installing Rust"; pkg_install rustup-init && rustup-init -y --no-modify-path
 else
   info "Installing Rust via rustup"
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-  warn "Run 'source \$HOME/.cargo/env' or restart your shell to use cargo."
 fi
 
 # ---------------------------------------------------------------------------
-# 5. lazygit (optional, for <leader>gg).
+# 5. lazygit -> $HOME/.local/bin (no root).
 # ---------------------------------------------------------------------------
 if have lazygit; then
   info "lazygit present"
+elif [ "$PM" = brew ] || [ "$PM" = pacman ]; then
+  info "Installing lazygit"; pkg_install lazygit
 else
-  info "Installing lazygit"
-  case "$PM" in
-    brew|pacman) pkg_install lazygit ;;
-    *)
-      LG_ARCH="$(uname -m)"; [ "$LG_ARCH" = "aarch64" ] && LG_ARCH=arm64
-      LG_VER="$(curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest \
-        | grep -Po '"tag_name":\s*"v\K[^"]*' || true)"
-      if [ -n "$LG_VER" ]; then
-        curl -fsSLo /tmp/lazygit.tar.gz \
-          "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LG_VER}_Linux_${LG_ARCH}.tar.gz"
-        tar -C /tmp -xf /tmp/lazygit.tar.gz lazygit
-        $SUDO install /tmp/lazygit /usr/local/bin/lazygit
-      else
-        warn "Could not resolve latest lazygit release; install manually if you want <leader>gg."
-      fi
-      ;;
-  esac
+  info "Installing lazygit to \$HOME/.local/bin"
+  LG_ARCH="$(uname -m)"; [ "$LG_ARCH" = "aarch64" ] && LG_ARCH=arm64
+  LG_VER="$(curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest \
+    | grep -Po '"tag_name":\s*"v\K[^"]*' || true)"
+  if [ -n "$LG_VER" ]; then
+    curl -fsSLo /tmp/lazygit.tar.gz \
+      "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LG_VER}_Linux_${LG_ARCH}.tar.gz"
+    tar -C /tmp -xf /tmp/lazygit.tar.gz lazygit
+    install /tmp/lazygit "$LOCAL_BIN/lazygit"
+    rm -f /tmp/lazygit /tmp/lazygit.tar.gz
+  else
+    warn "Could not resolve latest lazygit release; install manually if you want <leader>gg."
+  fi
 fi
 
 # ---------------------------------------------------------------------------
 info "External toolchains installed."
-cat <<'EOF'
+
+# PATH guidance.
+need_path=()
+echo "$PATH" | grep -q "$LOCAL_BIN" || need_path+=("$LOCAL_BIN")
+[ -d "$HOME/go/bin" ] && { echo "$PATH" | grep -q "$HOME/go/bin" || need_path+=("$HOME/go/bin"); }
+[ -f "$HOME/.cargo/env" ] && { echo "$PATH" | grep -q "$HOME/.cargo/bin" || need_path+=("$HOME/.cargo/bin"); }
+
+cat <<EOF
 
 Next steps:
-  1. Open a NEW shell (so Go/Rust are on PATH), or source your shell rc.
+EOF
+if [ ${#need_path[@]} -gt 0 ]; then
+  echo "  1. Add these to your PATH (e.g. in ~/.zshrc), then open a new shell:"
+  printf '        export PATH="%s:$PATH"\n' "$(IFS=:; echo "${need_path[*]}")"
+  [ -f "$HOME/.cargo/env" ] && echo "        source \$HOME/.cargo/env   # or just open a new shell"
+else
+  echo "  1. Open a new shell so everything is on your PATH."
+fi
+cat <<'EOF'
   2. Launch: nvim
-     - lazy.nvim installs plugins on first run.
-     - Mason installs the language servers + debug adapters (delve, debugpy).
+       - lazy.nvim installs plugins on first run.
+       - Mason installs the language servers + debug adapters (delve, debugpy).
   3. Run :checkhealth to confirm everything is green.
 EOF
