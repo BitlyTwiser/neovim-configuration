@@ -64,35 +64,57 @@ arch_tag() {
 }
 
 # ---------------------------------------------------------------------------
-# 1. Base tools (only touch the package manager if something is missing).
+# 1. Base tools that genuinely need the system package manager (a C compiler,
+#    git, curl, python3). ripgrep is handled separately below as a user-local
+#    install so it never needs root.
 # ---------------------------------------------------------------------------
 missing=()
-have rg || missing+=(ripgrep)
 { have gcc || have cc; } || missing+=(compiler)
 have git || missing+=(git)
 have curl || missing+=(curl)
 have python3 || missing+=(python3)
 
 if [ ${#missing[@]} -eq 0 ]; then
-  info "Base tools already present (ripgrep, compiler, git, curl, python3)."
+  info "Base tools already present (compiler, git, curl, python3)."
 elif [ -z "$PM" ]; then
   warn "Missing base tools: ${missing[*]} - install them with your package manager."
 elif [ "$CAN_SUDO" = true ]; then
   info "Installing base tools: ${missing[*]}"
   case "$PM" in
-    apt)    pkg_install ripgrep build-essential git curl unzip python3 python3-venv python3-pip ;;
-    dnf)    pkg_install ripgrep gcc gcc-c++ make git curl unzip python3 python3-pip ;;
-    pacman) pkg_install ripgrep base-devel git curl unzip python python-pip ;;
-    brew)   pkg_install ripgrep git curl python ;;
+    apt)    pkg_install build-essential git curl unzip python3 python3-venv python3-pip ;;
+    dnf)    pkg_install gcc gcc-c++ make git curl unzip python3 python3-pip ;;
+    pacman) pkg_install base-devel git curl unzip python python-pip ;;
+    brew)   pkg_install git curl python ;;
   esac
 else
   warn "Missing base tools: ${missing[*]}"
   warn "These need root. Run this once in a terminal, then re-run ./install.sh:"
   case "$PM" in
-    apt)    echo "    sudo apt-get install -y ripgrep build-essential git curl unzip python3 python3-venv python3-pip" ;;
-    dnf)    echo "    sudo dnf install -y ripgrep gcc gcc-c++ make git curl unzip python3 python3-pip" ;;
-    pacman) echo "    sudo pacman -S --needed ripgrep base-devel git curl unzip python python-pip" ;;
+    apt)    echo "    sudo apt-get install -y build-essential git curl unzip python3 python3-venv python3-pip" ;;
+    dnf)    echo "    sudo dnf install -y gcc gcc-c++ make git curl unzip python3 python3-pip" ;;
+    pacman) echo "    sudo pacman -S --needed base-devel git curl unzip python python-pip" ;;
   esac
+fi
+
+# ripgrep -> $HOME/.local/bin (no root). Required for Telescope live grep.
+if have rg; then
+  info "ripgrep present: $(rg --version | head -1)"
+elif [ "$PM" = brew ] || [ "$PM" = pacman ]; then
+  info "Installing ripgrep"; pkg_install ripgrep
+else
+  info "Installing ripgrep to \$HOME/.local/bin"
+  RG_ARCH="x86_64-unknown-linux-musl"; [ "$(uname -m)" = "aarch64" ] && RG_ARCH="aarch64-unknown-linux-gnu"
+  RG_VER="$(curl -fsSL https://api.github.com/repos/BurntSushi/ripgrep/releases/latest \
+    | grep -Po '"tag_name":\s*"\K[^"]*' || true)"
+  if [ -n "$RG_VER" ]; then
+    curl -fsSLo /tmp/rg.tar.gz \
+      "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VER}/ripgrep-${RG_VER}-${RG_ARCH}.tar.gz"
+    tar -C /tmp -xzf /tmp/rg.tar.gz "ripgrep-${RG_VER}-${RG_ARCH}/rg"
+    install "/tmp/ripgrep-${RG_VER}-${RG_ARCH}/rg" "$LOCAL_BIN/rg"
+    rm -rf /tmp/rg.tar.gz "/tmp/ripgrep-${RG_VER}-${RG_ARCH}"
+  else
+    warn "Could not resolve latest ripgrep release; install it manually (needed for live grep)."
+  fi
 fi
 
 # ---------------------------------------------------------------------------
