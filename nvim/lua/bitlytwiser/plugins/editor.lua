@@ -45,6 +45,13 @@ return {
           },
         },
         diagnostics = { enable = true, show_on_dirs = true },
+        -- Show hidden files by default. Dotfiles already show (dotfiles = false), but
+        -- git-ignored entries are hidden by default (git_ignored = true) - set both
+        -- false so nothing is hidden. Toggle at runtime with `H` (dotfiles) / `I` (ignored).
+        filters = {
+          dotfiles = false,
+          git_ignored = false,
+        },
       })
     end,
   },

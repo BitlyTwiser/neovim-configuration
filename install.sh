@@ -8,6 +8,7 @@
 #
 #   ripgrep        Telescope live grep
 #   C compiler     building treesitter parsers
+#   tree-sitter    CLI used by nvim-treesitter (main branch) to build parsers
 #   git, curl      plugin + tool downloads
 #   Node.js        TypeScript / Vue / JSON / YAML / ESLint language servers
 #   Go             gopls + delve (Go debugging)
@@ -114,6 +115,29 @@ else
     rm -rf /tmp/rg.tar.gz "/tmp/ripgrep-${RG_VER}-${RG_ARCH}"
   else
     warn "Could not resolve latest ripgrep release; install it manually (needed for live grep)."
+  fi
+fi
+
+# tree-sitter CLI -> $HOME/.local/bin (no root). Required by nvim-treesitter's
+# `main` branch to build language parsers (it shells out to `tree-sitter build`).
+if have tree-sitter; then
+  info "tree-sitter CLI present: $(tree-sitter --version)"
+elif [ "$PM" = brew ] || [ "$PM" = pacman ]; then
+  info "Installing tree-sitter CLI"; pkg_install tree-sitter
+else
+  info "Installing tree-sitter CLI to \$HOME/.local/bin"
+  TS_ARCH="x64"; [ "$(uname -m)" = "aarch64" ] && TS_ARCH="arm64"
+  TS_VER="$(curl -fsSL https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest \
+    | grep -Po '"tag_name":\s*"\K[^"]*' || true)"
+  if [ -n "$TS_VER" ]; then
+    curl -fsSLo /tmp/tree-sitter.gz \
+      "https://github.com/tree-sitter/tree-sitter/releases/download/${TS_VER}/tree-sitter-linux-${TS_ARCH}.gz"
+    gunzip -f /tmp/tree-sitter.gz
+    install /tmp/tree-sitter "$LOCAL_BIN/tree-sitter"
+    rm -f /tmp/tree-sitter
+  else
+    warn "Could not resolve latest tree-sitter release; install the CLI manually"
+    warn "(needed to build treesitter parsers): https://github.com/tree-sitter/tree-sitter/releases"
   fi
 fi
 
