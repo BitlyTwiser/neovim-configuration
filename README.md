@@ -1,7 +1,7 @@
 # neovim-configuration
 
 A modern Neovim configuration built on [lazy.nvim](https://github.com/folke/lazy.nvim).
-Targets Neovim **0.11+** (developed on 0.12).
+Requires Neovim **0.12+** (nvim-treesitter's `main` branch does not support older versions).
 
 ## Features
 
@@ -18,7 +18,7 @@ Targets Neovim **0.11+** (developed on 0.12).
 
 ## Setup
 
-1. Install [Neovim 0.11+](https://github.com/neovim/neovim/releases).
+1. Install [Neovim 0.12+](https://github.com/neovim/neovim/releases).
 2. Install the external toolchains with the bundled installer (see below), or by hand.
 3. Copy this repo's `nvim/` directory to your Neovim config location:
    - Linux/macOS: `~/.config/nvim`
@@ -34,6 +34,8 @@ The only things you install at the OS level are their runtimes plus a few tools:
 
 - [ripgrep](https://github.com/BurntSushi/ripgrep) - required for Telescope live grep
 - A C compiler + `make` - to build treesitter parsers
+- [tree-sitter CLI](https://github.com/tree-sitter/tree-sitter) - used by nvim-treesitter
+  (`main` branch) to build parsers via `:TSUpdate`/`:TSInstall`
 - `node`/`npm` - for the TypeScript, Vue, ESLint, JSON, and YAML language servers
 - `go` - for gopls and delve (Go debugging)
 - `cargo`/`rustc` - for rust_analyzer
