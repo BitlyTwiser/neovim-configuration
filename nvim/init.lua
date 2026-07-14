@@ -6,3 +6,4 @@ vim.g.maplocalleader = " "
 require("bitlytwiser.options")
 require("bitlytwiser.keymaps")
 require("bitlytwiser.lazy")
+require("bitlytwiser.agent-review").setup()
