@@ -11,6 +11,7 @@ return {
       { "<leader>x", group = "Diagnostics (Trouble)" },
       { "<leader>d", group = "Debug" },
       { "<leader>r", group = "Rename / refresh / run" },
+      { "<leader>a", group = "Agent review" },
       { "g", group = "Goto" },
     },
   },
